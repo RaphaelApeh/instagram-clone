@@ -1,0 +1,46 @@
+<div id="message">
+    <div class="message_container">
+        <div class="message">
+            <div class="options">
+                <div class="cart">
+                    <div>
+                        <div class="img">
+                            <img src="{{post.image.url}}" alt="">
+                        </div>
+                        <div class="info">
+                            <p class="name">{{post.user.get_full_name}}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="other"><a href="/" style="text-decoration: transparent; color: #000;">Home</a></div>
+                <div class="other">
+                    <a href="{% url 'comment' post.slug %}" style="text-decoration: transparent; color: black;">Refresh</a>
+                </div>
+            </div>
+            <div class="content">
+                {% for comment in comments %}
+                <!-- <div class="my_message">
+                    <p class="p_message">hello how are you?</p>
+                </div>
+                <div class="response_message">
+                    <p class="p_message">hi! i'm fine and you?</p>
+                </div> -->
+                {% if comment.user == request.user %}
+                <div class="my_message">
+                    <p class="p_message">{{comment}}</p>&nbsp;
+                </div>
+                {% else %}
+                <div class="response_message">
+                    <p class="p_message">{{comment.user.get_full_name|lower}} ~ {{comment}}</p>
+                </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" id="emoji" name="body" placeholder="write your comments here ...." />
+            </form>
+
+        </div>
+    </div>
+</div>
