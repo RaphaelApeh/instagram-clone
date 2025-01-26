@@ -59,18 +59,18 @@ def likes_view(request, slug):
     return JsonResponse({"added": True, "count": count})
 
 @login_required
-def save_post_view(request,slug=None):
-    post = get_object_or_404(Post,slug=slug)
+def save_post_view(request, slug):
+    post = get_object_or_404(Post, slug=slug)
     if post.favourite.filter(id=request.user.id):
         post.favourite.remove(request.user)
-        return redirect(request.META.get('HTTP_REFERER'))
-    else:
-        post.favourite.add(request.user)
-        return redirect(request.META.get('HTTP_REFERER'))
+        return JsonResponse({"added": False})
+    
+    post.favourite.add(request.user)
+    return JsonResponse({"added": True})
 
 @login_required(login_url='login/')
-def comments_view(request,slug):
-    post = get_object_or_404(Post,slug=slug)
+def comments_view(request, slug):
+    post = get_object_or_404(Post, slug=slug)
     comment = post.comment_set.all()
     if request.method == 'POST':
         Comment.objects.create(
@@ -78,12 +78,12 @@ def comments_view(request,slug):
             user=request.user,
             body=request.POST.get('body')
         )
-        return redirect('comment',post.slug)
-    context = {'comments':comment,'post':post}
-    return render(request,'main.html',context)
+        return redirect('comment', post.slug)
+    context = {'comments':comment, 'post':post}
+    return render(request, 'main.html', context)
 
 @login_required(login_url='login/')
-def follow_view(request,pk):
+def follow_view(request, pk):
     if request.method == 'POST':
         profile = Profile.objects.get(id=pk)
         request.user.profile.following.add(profile)
