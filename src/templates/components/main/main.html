@@ -131,8 +131,7 @@
 
             <div class="post__footer">
               <div class="post__buttons">
-                {% if not request.user in post.likes.all %}
-                <a href="{% url 'like' post.slug %}" class="post__button">
+                <button id="likeBtn" data-slug="{% url 'like' post.slug %}" class="post__button">
                   <svg
                     width="24"
                     height="24"
@@ -147,14 +146,12 @@
                       stroke-width="0.6"
                     />
                   </svg>
-                </a>
-                {% else %}
-                <a href="" class="post__button">
+                </button>
+                <!-- <a href="" class="post__button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
-                  </svg>
+                  </svg> -->
                 </a>
-                {% endif %}
                 <a href="{% url 'comment' post.slug %}" class="post__button">
                   <svg
                     width="24"
@@ -223,10 +220,10 @@
               <div class="post__infos">
                 <div class="post__likes">
                   <span
-                    >{% if request.user in post.likes.all %} <strong>
+                    >{% if request.user in post.likes.all %} <strong id="likes-count">
                       You Liked {{post.likes.count|intcomma}} Likes
                     </strong>{% else %}
-                    <strong>{{post.likes.count|intcomma}} Likes</strong></span> {% endif %}
+                    <strong id="likes-count">{{post.likes.count|intcomma}} Likes</strong></span> {% endif %}
                 </div>
 
                 <div class="post__description">
@@ -281,6 +278,7 @@
               </form>
             </div>
             {% endfor %}
+            <script src="{% static 'js/likes.js' %}"></script>
             <!-- <div class="side-menu__suggestion">
               <a href="#" class="side-menu__suggestion-avatar">
                 <img src="{% static 'assets/default-user.png' %}" alt="User Picture" />

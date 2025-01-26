@@ -1,5 +1,5 @@
 ### Instagram Clone with Django
-- clone the Repository
+- clone the Repository 📌
 ```bash
 git clone https://github.com/RaphaelApeh/instagram-clone.git
 ```
@@ -7,13 +7,13 @@ git clone https://github.com/RaphaelApeh/instagram-clone.git
 ```bash
 pip install -r requirements.txt
 ```
-- Set in <b>.env</b>
+- Set in `.env` ⚙
 
 ```python
 DJANGO_SECRET_KEY=""
 DJANGO_DEBUG=True
 ```
-- Working Dir
+- 🛠 Working Dir
 ```bash
 cd src/
 ```
@@ -21,7 +21,7 @@ cd src/
 ```bash
 python manage.py migrate
 ```
-- <h1>Preview</h1>
+- <h1>Preview 😘</h1>
 - Login<br/>
 
 ![IMG](./Instagram.png)

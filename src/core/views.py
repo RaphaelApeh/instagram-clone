@@ -1,21 +1,23 @@
-from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.contrib.auth import logout,login
+from django.contrib.auth import logout, login
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 
-from .utils import authenticate,get_users_not_followed
+from .utils import authenticate, get_users_not_followed
 from base.models import Notification
-from .models import Post,Comment,Profile,PasswordReset
-from .forms import UserRegisterForm,CreateForm
+from .models import Post, Comment, Profile, PasswordReset
+from .forms import UserRegisterForm, CreateForm
+
+User = get_user_model()
 
 
 def home_page(request):
@@ -25,18 +27,18 @@ def home_page(request):
     user_follow = request.user.profile
     user_profile = user_follow.following.values_list('id',flat=True)
     posts = Post.objects.filter(Q(user__id__in=user_profile)|Q(user=request.user)|Q(user__id__in=[request.user.profile.followed_by.values_list('id',flat=True)])).order_by('-timestamp')
-    p = Paginator(posts,5)
+    p = Paginator(posts, 5)
     page = request.GET.get('page')
     pages = p.get_page(page)
-    print(dir(pages))
-    return render(request,'index.html',{'posts':posts,'all_user':all_user,'pages':pages})
+    return render(request, 'index.html', {'posts':posts,'all_user':all_user,'pages':pages})
 
 @login_required(login_url='login/')
-def likes_view(request,slug=None):
+def likes_view(request, slug):
     user = User.objects.get(id=request.user.id)
     post = Post.objects.get(slug=slug)
     if post.likes.filter(id=request.user.id):
         post.likes.remove(request.user)
+        count = post.likes.count()
         if request.user != post.user:
             Notification.objects.create(
                 user=post.user,
@@ -44,16 +46,17 @@ def likes_view(request,slug=None):
                 content=f"{user.username} Unliked your post '{post.name[:10]}'... ",
                 notification_type=1,
             )
-    else:
-        post.likes.add(request.user)
-        if request.user != post.user:
-            Notification.objects.create(
-                user=post.user,
-                sender=request.user,
-                content=f"{user.username} Liked your post '{post.name[:10]}'... ",
-                notification_type=1,
-            )
-    return redirect(request.META.get('HTTP_REFERER'))
+        return JsonResponse({"added": False, 'count': count})
+    post.likes.add(request.user)
+    if request.user != post.user:
+        Notification.objects.create(
+            user=post.user,
+            sender=request.user,
+            content=f"{user.username} Liked your post '{post.name[:10]}'... ",
+            notification_type=1,
+        )
+    count = post.likes.count()
+    return JsonResponse({"added": True, "count": count})
 
 @login_required
 def save_post_view(request,slug=None):
